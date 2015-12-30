@@ -1,5 +1,4 @@
-require 'rails_helper'
-require 'execjs'
+require 'spec_helper'
 
 describe 'the /opal-rspec route' do
   it 'is aliased to /opal_spec for legacy support'

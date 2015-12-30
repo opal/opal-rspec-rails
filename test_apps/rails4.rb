@@ -4,7 +4,8 @@ require 'rails'
 require 'rails/all'
 require 'action_view/testing/resolvers'
 
-require 'opal-rails' # our gem
+require 'opal-rails'
+require 'opal-rspec-rails' # our gem
 
 module RailsApp
   class Application < Rails::Application
