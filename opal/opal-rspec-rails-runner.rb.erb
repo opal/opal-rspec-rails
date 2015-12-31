@@ -1,0 +1,49 @@
+require 'opal'
+require 'opal-rspec'
+
+query_string = {}
+params = `String(window.location.search)`[1..-1].to_s.split('&').each {|param| param.split('=', 2)}
+params.find do |(name, value)|
+  case name
+  when 'files'
+    query_string[:files] = value.to_s.split(':')
+  when 'pattern'
+    query_string[:pattern] = value
+  end
+end
+
+
+RSpec.configure do |config|
+  config.pattern = query_string[:pattern] || '**/*_spec'
+end
+
+RSpec::Core::Runner.class_eval do
+  def self.autorun
+    at_exit do
+      # see NoCarriageReturnIO source for why this is being done (not on Node though)
+      err, out = get_opal_closed_tty_io
+      # Have to do this in 2 places. This will ensure the default formatter gets the right IO, but need to do this in config for custom formatters
+      # that will be constructed BEFORE this runs, see rspec.rb
+      run(ARGV, err, out).then do |status|
+        exit 0
+      end
+    end
+  end
+
+  def self.exit_with_code(code)
+    exit(code)
+  end
+end
+
+
+if query_string[:files]
+  query_string[:files].each {|path| require path}
+else
+  <% spec_location = Rails.root.join(Rails.application.config.opal_rspec.spec_location) %>#>
+  <% entries = Dir["#{spec_location}/**/*_spec.rb"].map{|p| Pathname(p).relative_path_from(spec_location) } %>#>
+  <%= entries.map{|e| "\n  require #{e.to_s.sub(/\.rb$/,'').inspect};"}.join %>#>
+end
+
+RSpec::Core::Runner.autorun
+
+exit

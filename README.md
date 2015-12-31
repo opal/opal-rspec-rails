@@ -1,4 +1,4 @@
-# Opal::Rspec::Rails
+# Opal::RSpec::Rails
 
 Provides bindings between `opal-rails` and `opal-rspec`.
 Supports in browser specs as well as a rake task.

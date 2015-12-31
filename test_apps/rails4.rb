@@ -10,7 +10,7 @@ require 'opal-rspec-rails' # our gem
 module RailsApp
   class Application < Rails::Application
     config.root                                       = __dir__
-    config.cache_classes                              = true
+    config.cache_classes                              = false
     config.eager_load                                 = false
     config.serve_static_files                         = true
     config.static_cache_control                       = 'public, max-age=3600'

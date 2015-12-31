@@ -1,9 +1,16 @@
-require "opal/rspec/rails/version"
+require 'opal/rspec/rails/version'
+require 'pathname'
 
 module Opal
-  module Rspec
+  module RSpec
     module Rails
-      # Your code goes here...
+      def self.root
+        @root ||= Pathname("#{__dir__}/../../..")
+      end
     end
   end
+end
+
+if defined? Rails::Railtie
+  require 'opal/rspec/railtie'
 end

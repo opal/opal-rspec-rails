@@ -1,5 +1,5 @@
 module Opal
-  module Rspec
+  module RSpec
     module Rails
       VERSION = "0.1.0"
     end
