@@ -1,19 +1,19 @@
 require 'spec_helper'
 
+Capybara.default_max_wait_time = 20
+
 describe Opal::RSpec::Rails do
   specify '.root', :focus do
     expect(File.expand_path(described_class.root)).to eq(File.expand_path("#{__dir__}/.."))
   end
 end
 
-describe 'the /opal-rspec route' do
+describe 'the /opal-rspec route', type: :feature, js: true do
   it 'allows the use of other non-opal assets'
 
-  fit 'runs the specs successfully', type: :feature, js: true do
-    extend Capybara::DSL
+  fit 'runs the specs successfully' do
     visit '/spec-opal'
-    save_and_open_page
-    expect(page).to have_content('0 Failures')
+    expect(page).to have_content('1 example, 0 failures')
   end
 
   it 'allows running the specs based on a pattern'

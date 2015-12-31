@@ -34,7 +34,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'rake', '~> 10.0'
   spec.add_development_dependency 'rspec-rails'
   spec.add_development_dependency 'capybara'
-  spec.add_development_dependency 'capybara-webkit'
+  spec.add_development_dependency 'selenium-webdriver'
   spec.add_development_dependency 'launchy'
   spec.add_development_dependency 'sqlite3'
 end

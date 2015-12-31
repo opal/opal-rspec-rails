@@ -28,6 +28,7 @@ module RailsApp
     routes.append do
       get '/' => 'application#index'
       get '/application/with_assignments' => 'application#with_assignments'
+      get '/favicon.ico' => ->e{ [404,{},[]] }
     end
 
     config.assets.paths << File.join(__dir__, 'assets/javascripts')
