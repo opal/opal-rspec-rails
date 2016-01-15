@@ -3,20 +3,34 @@ require 'spec_helper'
 Capybara.default_max_wait_time = 20
 
 describe Opal::RSpec::Rails do
-  specify '.root', :focus do
+  specify '.root' do
     expect(File.expand_path(described_class.root)).to eq(File.expand_path("#{__dir__}/.."))
   end
 end
 
 describe 'the /opal-rspec route', type: :feature, js: true do
-  it 'allows the use of other non-opal assets'
-
-  fit 'runs the specs successfully' do
-    visit '/spec-opal'
+  # Previously the specs code were built with `Opal::Builder` instead of the
+  # Rails' sprockets instance, thus blowing up when a file using a
+  # sprockets-only processor was used.
+  it 'allows the use of other non-opal assets' do
+    visit '/spec-opal?pattern=spec_requiring_other_assets'
+    expect(page).to have_content('greets offering coffee')
     expect(page).to have_content('1 example, 0 failures')
   end
 
-  it 'allows running the specs based on a pattern'
+  it 'runs the specs successfully' do
+    visit '/spec-opal'
+    expect(page).to have_content('A simple spec')
+    expect(page).to have_content('1 example, 0 failures')
+  end
+
+  it 'allows running the specs based on a pattern' do
+    visit '/spec-opal?pattern=*pattern*'
+    expect(page).to have_content('2 example, 0 failures')
+    expect(page).to have_content('spec_with_some_pattern')
+    expect(page).to have_content('spec_with_some_other_pattern')
+  end
+
   it 'allows running the specs for a single file'
 end
 
@@ -26,7 +40,6 @@ describe 'the `rake opal:spec` command' do
   it 'allows running the specs based on a pattern'
   it 'allows running the specs for a single file'
 end
-
 
 # describe 'controller assignments' do
 #   it 'are in the template' do
