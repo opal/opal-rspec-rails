@@ -2,7 +2,7 @@ require 'bundler/setup'
 
 root_dir = File.expand_path('../../', __FILE__)
 
-require 'support/test_app'
+require_relative '../test_apps/app'
 require 'rspec/rails'
 require 'support/capybara'
 require 'support/reset_assets_cache'

@@ -12,52 +12,37 @@ class Opal::RSpec::Rails::Engine < ::Rails::Railtie
   config.opal_rspec.routing_path = '/spec-opal'
   config.opal_rspec.spec_location = 'spec-opal'
 
+  # Files to be preloaded when the specs are ran, this helps with dynamic
+  # requires if you need to use spec patterns other than
+  # the default '**/*_spec'.
+  config.opal_rspec.preload = []
+
   initializer 'opal-rspec-rails' do |app|
+    # @private
     # Cache the non-cached sprockets environment to be used
     # by the Opal::RSpec::Rails::Server.
     config.opal_rspec.sprockets_instance = app.assets
   end
 
-  # initializer 'opal.asset_paths', :after => 'sprockets.environment', :group => :all do |app|
-  #   if app.config.opal.enable_specs
-  #     spec_location = app.root.join(app.config.opal.spec_location).to_s
-  #     runner_dir = ::Opal::Rails::SpecBuilder.runner_dir(app.root)
-  #     runner_dir.mkpath
-  #
-  #     app.assets.append_path runner_dir.to_s
-  #     app.assets.append_path spec_location
-  #   end
-  #
-  #   Opal.paths.each do |path|
-  #     app.assets.append_path path
-  #   end
-  # end
-  #
-  # config.after_initialize do |app|
-  #   config = app.config
-  #   config.opal.each_pair do |key, value|
-  #     key = "#{key}="
-  #     Opal::Processor.send(key, value) if Opal::Processor.respond_to? key
-  #   end
-  #
-  #   app.routes.prepend do
-  #     if app.config.opal.enable_specs
-  #       get '/opal-rspec' => 'opal/rspec#run', as: :opal_spec
-  #     end
-  #   end
-  # end
+  rake_tasks do |app|
+    require 'opal/rspec/rails/task'
+    Opal::RSpec::Rails::Task.new(app)
+  end
+
   config.after_initialize do |app|
     config = app.config
 
-    app.routes.prepend do
-      if config.opal_rspec.enable
-        require 'opal/rspec/rails/server'
+    if config.opal_rspec.enable
+      prefix      = config.opal_rspec.routing_path+'/assets'
+      mount_point = config.opal_rspec.routing_path
 
-        opal_rspec_server = Opal::RSpec::Rails::Server.new do |server|
-          server.main = 'opal-rspec-rails-runner'
-        end
+      require 'opal/rspec/rails/server'
+      server_app = Opal::RSpec::Rails::Server.new(prefix: prefix)
 
-        mount opal_rspec_server, at: config.opal_rspec.routing_path
+      config.opal_rspec.server_app = server_app
+
+      app.routes.prepend do
+        mount config.opal_rspec.server_app, at: mount_point
       end
     end
   end
