@@ -1,5 +1,18 @@
 require 'opal-rspec'
 
+# Avoid double slashes for Opal < v0.10+
+::Opal::Server::Index.class_eval do
+  def javascript_include_tag name
+    sprockets = @server.sprockets
+    prefix = @server.prefix
+    debug = @server.debug
+
+    prefix = prefix.chop if prefix.end_with? '/'
+
+    ::Opal::Sprockets.javascript_include_tag(name, sprockets: sprockets, prefix: prefix, debug: debug)
+  end
+end if Opal::VERSION.to_f < 0.10
+
 class Opal::RSpec::Rails::Server < ::Opal::Server
   def initialize(options = {})
     options ||= {}
