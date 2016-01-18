@@ -37,7 +37,7 @@ class Opal::RSpec::Rails::Engine < ::Rails::Railtie
       mount_point = config.opal_rspec.routing_path
 
       require 'opal/rspec/rails/server'
-      server_app = Opal::RSpec::Rails::Server.new(prefix: prefix)
+      server_app = Opal::RSpec::Rails::Server.new
 
       config.opal_rspec.server_app = server_app
 
