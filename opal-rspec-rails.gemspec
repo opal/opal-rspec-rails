@@ -27,6 +27,7 @@ Gem::Specification.new do |spec|
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ["lib"]
 
+  spec.add_dependency 'opal',       '~> 0.9.2'
   spec.add_dependency 'opal-rspec', '~> 0.5.0'
   spec.add_dependency 'opal-rails', '~> 0.9.0.dev'
 
