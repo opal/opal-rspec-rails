@@ -11,6 +11,4 @@ module Opal
   end
 end
 
-if defined? Rails::Railtie
-  require 'opal/rspec/railtie'
-end
+require 'opal/rspec/railtie'
