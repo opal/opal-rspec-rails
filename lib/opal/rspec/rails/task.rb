@@ -7,6 +7,8 @@
 module Opal; module RSpec; module Rails
 
 class Task < Rake::SprocketsTask
+  DEFAULT_PORT = 9292
+
   attr_accessor :app
 
   def initialize(app = nil)
@@ -55,6 +57,32 @@ class Task < Rake::SprocketsTask
   end
   attr_writer :cache_path
 
+  def server
+    @server ||= ::Opal::RSpec::Rails::Server.new(prefix: '/')
+  end
+
+  def port
+    (ENV['PORT'] || DEFAULT_PORT).to_i
+  end
+
+  def runner
+    @runner ||= begin
+      require 'opal/cli_runners'
+      runner_name = ENV['RUNNER'] || 'phantomjs'
+      # p runner_name: runner_name, v: Opal::VERSION.to_f, a: [runner_name == 'server', Gem::Version.new(Opal::VERSION) < Gem::Version.new('0.10')]
+      runner_class = ::Opal::CliRunners.const_get(runner_name.capitalize)
+
+      case runner_class.instance_method(:initialize).arity
+      when 1
+        runner_class.new({})
+      when 2
+        runner_class.new(nil, port)
+      else
+        runner_class.new
+      end
+    end
+  end
+
   def define
     namespace :opal do
       namespace :rspec do
@@ -67,21 +95,15 @@ class Task < Rake::SprocketsTask
 
         desc "Run the specs server"
         task :server => :environment do |t, args|
-          # TODO
+          Rack::Server.start app: server, Port: port
         end
 
         desc "Run the specs"
         task :run => :environment do
           # splitter = ARGV.index '--'
           args = []
-
-          require 'opal/cli_runners'
-
-          server = ::Opal::RSpec::Rails::Server.new(prefix: '/')
-          runner = ::Opal::CliRunners::Phantomjs.new
           code   = server.sprockets['opal-rspec-rails-runner.js'].to_s
           code  += Opal::Sprockets.load_asset("opal-rspec-rails-runner", server.sprockets)
-
           runner.run code, args
         end
       end
