@@ -2,6 +2,7 @@ require 'opal'
 require 'opal-rspec'
 require 'native'
 require 'console'
+require 'opal/platform'
 
 class Opal::RSpec::QueryStringConfig
   def initialize(string)
@@ -29,11 +30,17 @@ class Opal::RSpec::QueryStringConfig
     def glob_to_regexp(glob)
       # pattern.split('/').each do
       pattern = glob
-      escaped_pattern = Regexp.escape(pattern)
-      transformed_glob = escaped_pattern.gsub('**/', '.*').gsub('\*', '[^/]*').gsub('\?', '.')
-      p glob: glob, escaped_pattern: escaped_pattern, transformed_glob: transformed_glob
+
+      double_asterisk = -> str { str.gsub('\*\*\/', '.*') }
+      single_asterisk = -> str { str.gsub('\*', '[^/]*') }
+      question_mark   = -> str { str.gsub('\?', '.') }
+
+      transformed_glob = p Regexp.escape(pattern)
+      transformed_glob = p double_asterisk[transformed_glob]
+      transformed_glob = p single_asterisk[transformed_glob]
+      transformed_glob = p question_mark[transformed_glob]
+
       regexp = Regexp.new('^'+transformed_glob+'$')
-      $console.log regexp
       regexp
     end
 
@@ -48,18 +55,20 @@ end
 query_config = Opal::RSpec::QueryStringConfig.new(`String(window.location.search)`)
 
 all_loaded_files = Hash.new(`Opal.modules`).keys
-all_files        = query_config.files || all_loaded_files
-matching_files   = all_files.grep(query_config.pattern_regexp)
-
+all_files        = query_config.files.any? ? query_config.files : all_loaded_files
+matching_files   = all_loaded_files.grep(query_config.pattern_regexp) #select{|f| p(f) =~ query_config.pattern_regexp }
+p matching_files: matching_files
 matching_files.each { |file| require file }
 
-# Preload all files ending with "_spec"
+
+# Preload all files ending with "_spec" and all files in `config.opal_rspec.preload`
 if false
   # ERB: <% spec_location = Rails.root.join(Rails.application.config.opal_rspec.spec_location) %>
   # ERB: <% entries = Dir["#{spec_location}/**/*_spec.rb"].map{|p| Pathname(p).relative_path_from(spec_location) } %>
   # ERB: <% entries += Rails.application.config.opal_rspec.preload %>
   # ERB: <%= entries.map{|e| "\n  require #{e.to_s.sub(/\.rb$/,'').inspect};"}.join %> # Make syntax higlighters happy: %>
 end
+p [:_______________________, __FILE__, __LINE__, ARGV]
 
 
 # Patch the RSpec runner to work with Kernel.exit
