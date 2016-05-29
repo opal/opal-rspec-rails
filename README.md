@@ -18,36 +18,51 @@ And then execute:
 
 ## Usage
 
-Add specs into `/spec-opal`:
-
-and then a spec folder with you specs!
+Let's say you have a library named `MyLib` in your Opal app.
 
 ```ruby
-# /spec-opal/example_spec.js.rb
-describe 'a spec' do
-  it 'has successful examples' do
-    'I run'.should =~ /run/
+# /app/assets/javascripts/my_lib.js.rb
+class MyLib
+  def does_something
+    "running"
   end
 end
 ```
 
-Then visit `/spec-opal` from your app and **reload at will** or use the command line with `rake opal:spec`.
+Setup code can be put in a `spec_helper` as usual in the `spec-opal` folder:
+
+_**BEWARE:** Rails style autoload doesn't work here, so you have to require `my_lib`._
 
 ```ruby
-# /spec-opal/example_spec.js.rb
+# /spec-opal/spec_helper.js.rb
+require 'my_lib'
+require 'support/some_spec_helper'
+
+RSpec.configure do |config|
+  config.before(:all) { puts "before all hook"}
+  config.include SomeSpecHelper
+end
+```
+
+Specs go into `/spec-opal`
+
+```ruby
+# /spec-opal/my_lib_spec.js.rb
 require 'spec_helper'
 
-describe 'a spec' do
-  it 'has successful examples' do
-    'I run'.should =~ /run/
+describe MyLib do
+  it 'does something' do
+    MyLib.new.does_something.should =~ /run/
   end
 end
 ```
+
+You can now run your specs by visiting `http://localhost:3000/spec-opal` on your app (`rails server`) or using the command line with `rake opal:spec`.
 
 ![1 examples, 0 failures](http://cl.ly/2j0N0R0C1c1f/Screen%20Shot%202016-01-02%20at%2000.26.43.png)
 
 
-## Configuration
+## Configuration (Rails side)
 
 ```ruby
 # Enable or disable opal-rspec support, usually it's disabled in production.
