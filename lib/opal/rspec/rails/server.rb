@@ -11,4 +11,8 @@ class Opal::RSpec::Rails::Server < ::Opal::Server
 
     super(options.merge(sprockets: assets))
   end
+
+  def inspect
+    "<#{self.class} debug=#{debug} use_index=#{use_index} public_root=#{public_root}>"
+  end
 end
