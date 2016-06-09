@@ -1,5 +1,4 @@
 require 'spec_helper'
-require 'pry'
 
 Capybara.default_max_wait_time = 20
 
