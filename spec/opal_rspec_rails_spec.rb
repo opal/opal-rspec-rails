@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'pry'
 
 Capybara.default_max_wait_time = 20
 
@@ -26,7 +27,7 @@ describe 'the /opal-rspec route', type: :feature, js: true do
 
   it 'allows running the specs based on a pattern' do
     visit '/spec-opal?pattern=*pattern*'
-    expect(page).to have_content('2 example, 0 failures')
+    expect(page).to have_content('2 examples, 0 failures')
     expect(page).to have_content('spec_with_some_pattern')
     expect(page).to have_content('spec_with_some_other_pattern')
   end

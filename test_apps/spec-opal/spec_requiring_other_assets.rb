@@ -4,6 +4,7 @@ CoffeeGreeter = Native(`window.CoffeeGreeter`)
 
 describe CoffeeGreeter do
   it 'greets offering coffee' do
-    expect(CoffeeGreeter.new('Mario').greet).to eq("Hello Mario! Want some coffee?")
+    coffee_greeter = `new CoffeeGreeter('Mario')`
+    expect(`coffee_greeter.greet()`).to eq("Hello Mario! Want some coffee?")
   end
 end
