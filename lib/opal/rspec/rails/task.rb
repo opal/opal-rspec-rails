@@ -58,7 +58,7 @@ class Task < Rake::SprocketsTask
   attr_writer :cache_path
 
   def server
-    @server ||= ::Opal::RSpec::Rails::Server.new(prefix: '/')
+    @server ||= ::Opal::RSpec::Rails::Server.new
   end
 
   def port

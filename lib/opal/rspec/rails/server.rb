@@ -19,11 +19,14 @@ class Opal::RSpec::Rails::Server < ::Opal::Server
 
     app    = Rails.application
     assets = app.config.opal_rspec.sprockets_instance || app.assets
+    spec_location = Rails.root.join(app.config.opal_rspec.spec_location).to_s
+
     assets.append_path Opal::RSpec::Rails.root.join('opal').to_s
-    assets.append_path Rails.root.join(app.config.opal_rspec.spec_location).to_s
+    assets.append_path spec_location
 
     super(options.merge(sprockets: assets)) do |server|
       server.main = 'opal-rspec-rails-runner'
+      server.append_path spec_location
     end
   end
 
