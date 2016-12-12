@@ -19,7 +19,7 @@ class Opal::RSpec::QueryStringConfig
   end
 
   def pattern_regexp
-    glob_to_regexp(pattern)
+    Regexp.new(pattern)
   end
 
   def files
@@ -27,23 +27,6 @@ class Opal::RSpec::QueryStringConfig
   end
 
   module Utils
-    def glob_to_regexp(glob)
-      # pattern.split('/').each do
-      pattern = glob
-
-      double_asterisk = -> str { str.gsub('\*\*\/', '.*') }
-      single_asterisk = -> str { str.gsub('\*', '[^/]*') }
-      question_mark   = -> str { str.gsub('\?', '.') }
-
-      transformed_glob = p Regexp.escape(pattern)
-      transformed_glob = p double_asterisk[transformed_glob]
-      transformed_glob = p single_asterisk[transformed_glob]
-      transformed_glob = p question_mark[transformed_glob]
-
-      regexp = Regexp.new('^'+transformed_glob+'$')
-      regexp
-    end
-
     def parse_query_string(string)
       string[1..-1].to_s.split('&').map {|param| p(param).split('=', 2)}
     end
@@ -57,16 +40,21 @@ query_config = Opal::RSpec::QueryStringConfig.new(`String(window.location.search
 all_loaded_files = Hash.new(`Opal.modules`).keys
 all_files        = query_config.files.any? ? query_config.files : all_loaded_files
 matching_files   = all_loaded_files.grep(query_config.pattern_regexp) #select{|f| p(f) =~ query_config.pattern_regexp }
-p matching_files: matching_files
+p matching_files: matching_files, query: query_config.pattern_regexp, loaded: all_loaded_files.grep(/_spec/), explicit: query_config.files
 matching_files.each { |file| require file }
 
 
+<<-ERB
+<%
+  spec_location = Rails.root.join(Rails.application.config.opal_rspec.spec_location)
+  entries = Dir["#{spec_location}/**"].map{|p| Pathname(p).relative_path_from(spec_location) }
+  entries += Rails.application.config.opal_rspec.preload
+%>
 # Preload all files ending with "_spec" and all files in `config.opal_rspec.preload`
+ERB
+
 if false
-  # ERB: <% spec_location = Rails.root.join(Rails.application.config.opal_rspec.spec_location) %>
-  # ERB: <% entries = Dir["#{spec_location}/**/*_spec.rb"].map{|p| Pathname(p).relative_path_from(spec_location) } %>
-  # ERB: <% entries += Rails.application.config.opal_rspec.preload %>
-  # ERB: <%= entries.map{|e| "\n  require #{e.to_s.sub(/\.rb$/,'').inspect};"}.join %> # Make syntax higlighters happy: %>
+  <%= entries.map{|e| "\n  require #{e.to_s.sub(/\.rb$/,'').inspect};"}.join %>
 end
 p [:_______________________, __FILE__, __LINE__, ARGV]
 
