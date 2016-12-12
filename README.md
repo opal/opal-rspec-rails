@@ -8,7 +8,7 @@ Supports in browser specs as well as a rake task.
 Add this line to your Rails application's Gemfile:
 
 ```ruby
-gem 'opal-rspec-rails'
+gem 'opal-rspec-rails', github: 'opal/opal-rspec-rails'
 ```
 
 And then execute:
