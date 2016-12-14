@@ -39,24 +39,30 @@ query_config = Opal::RSpec::QueryStringConfig.new(`String(window.location.search
 
 all_loaded_files = Hash.new(`Opal.modules`).keys
 all_files        = query_config.files.any? ? query_config.files : all_loaded_files
-matching_files   = all_loaded_files.grep(query_config.pattern_regexp) #select{|f| p(f) =~ query_config.pattern_regexp }
+matching_files   = all_loaded_files.grep(query_config.pattern_regexp)
 p matching_files: matching_files, query: query_config.pattern_regexp, loaded: all_loaded_files.grep(/_spec/), explicit: query_config.files
 matching_files.each { |file| require file }
 
 
-<<-ERB
-<%
+# We do this to preload all files but actually require
+# only those matching the pattern.
+
+# ERB: <%
   spec_location = Rails.root.join(Rails.application.config.opal_rspec.spec_location)
+
+  # Preload all files from `config.opal_rspec.spec_location`
   entries = Dir["#{spec_location}/**"].map{|p| Pathname(p).relative_path_from(spec_location) }
+
+  # …and all files in `config.opal_rspec.preload`
   entries += Rails.application.config.opal_rspec.preload
-%>
-# Preload all files ending with "_spec" and all files in `config.opal_rspec.preload`
-ERB
+# ERB: %>
 
 if false
-  <%= entries.map{|e| "\n  require #{e.to_s.sub(/\.rb$/,'').inspect};"}.join %>
+  # ERB: <%=
+    # Require all files
+    entries.map{|e| "\n  require #{e.to_s.sub(/\.rb$/,'').inspect};"}.join
+  # ERB: %>
 end
-p [:_______________________, __FILE__, __LINE__, ARGV]
 
 
 # Patch the RSpec runner to work with Kernel.exit
