@@ -33,6 +33,8 @@ class Opal::RSpec::Rails::Engine < ::Rails::Railtie
     config = app.config
 
     if config.opal_rspec.enable
+      app.assets.append_path app.root.join(config.opal_rspec.spec_location)
+
       prefix      = config.opal_rspec.routing_path+'/assets'
       mount_point = config.opal_rspec.routing_path
 

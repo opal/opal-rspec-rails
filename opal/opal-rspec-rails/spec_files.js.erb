@@ -1,0 +1,21 @@
+// We do this to preload all files but actually require
+// only those matching the pattern.
+
+<%
+  spec_location = Rails.root.join(Rails.application.config.opal_rspec.spec_location)
+
+  # Preload all files from `config.opal_rspec.spec_location`
+  entries = []
+  Dir["#{spec_location}/**"].map do |p|
+    relative_path = Pathname(p).relative_path_from(spec_location)
+    entries << relative_path
+    depend_on relative_path
+  end
+
+  # …and all files in `config.opal_rspec.preload`
+  entries += Rails.application.config.opal_rspec.preload
+  entries.each { |entry| require_asset entry }
+%>
+
+Opal.gvars.spec_files = <%= entries.to_json %>;
+
