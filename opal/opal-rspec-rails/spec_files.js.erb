@@ -3,13 +3,15 @@
 
 <%
   spec_location = Rails.root.join(Rails.application.config.opal_rspec.spec_location)
+  reload_file = spec_location.join('reload.txt')
+  reload_file.write('Touch this file to reload the list of specs after adding new files') unless reload_file.exist?
 
   # Preload all files from `config.opal_rspec.spec_location`
   entries = []
-  Dir["#{spec_location}/**"].map do |p|
+  Dir["#{spec_location}/**.rb"].map do |p|
     relative_path = Pathname(p).relative_path_from(spec_location)
-    entries << relative_path
-    depend_on relative_path
+    entries << relative_path.to_s
+    depend_on relative_path.to_s
   end
 
   # …and all files in `config.opal_rspec.preload`
