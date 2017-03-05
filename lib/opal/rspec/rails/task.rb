@@ -68,7 +68,7 @@ class Task < Rake::SprocketsTask
   def runner
     @runner ||= begin
       require 'opal/cli_runners'
-      runner_name = ENV['RUNNER'] || 'phantomjs'
+      runner_name = ENV['RUNNER'] || 'nodejs'
       # p runner_name: runner_name, v: Opal::VERSION.to_f, a: [runner_name == 'server', Gem::Version.new(Opal::VERSION) < Gem::Version.new('0.10')]
       runner_class = ::Opal::CliRunners.const_get(runner_name.capitalize)
 
@@ -103,7 +103,7 @@ class Task < Rake::SprocketsTask
           # splitter = ARGV.index '--'
           args = []
           code   = server.sprockets['opal-rspec-rails-runner.js'].to_s
-          code  += Opal::Sprockets.load_asset("opal-rspec-rails-runner", server.sprockets)
+          # code  += Opal::Sprockets.load_asset("opal-rspec-rails-runner", server.sprockets)
           runner.run code, args
         end
       end

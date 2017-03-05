@@ -37,7 +37,8 @@ class Opal::RSpec::QueryStringConfig
   include Utils
 end
 
-query_config = Opal::RSpec::QueryStringConfig.new(`String(window.location.search)`)
+ENV['OPAL_RSPEC_OPTIONS'] ||= `String(Opal.global.location && Opal.global.location.search)`
+query_config = Opal::RSpec::QueryStringConfig.new(ENV['OPAL_RSPEC_OPTIONS'])
 
 all_loaded_files = Hash.new(`Opal.modules`).keys
 all_files        = query_config.files.any? ? query_config.files : all_loaded_files
